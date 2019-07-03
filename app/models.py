@@ -7,12 +7,11 @@ from sqlalchemy import and_
 
 class User(db.Model):
     __tablename__ = 'User'
-    Num_Users = 0;
-    user_id = db.Column(db.Integer, nullable=False, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(30), nullable=False)
-    gender = db.Column(db.String(10), nullable=False)
-    email_id = db.Column(db.String(60), nullable=False)
-    age = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(30))
+    gender = db.Column(db.String(10))
+    email_id = db.Column(db.String(60))
+    age = db.Column(db.Integer)
 
     Cart_List = db.relationship("Cart")
 
@@ -48,17 +47,18 @@ def load_user(user_id):
 
 class Credentials(db.Model):
     __tablename__ = 'Credentials'
-    email_id = db.Column(db.String(60), nullable=False, primary_key=True)
-    password = db.Column(db.String(60), nullable=False, unique=True)
+    user_id = db.Column(db.String(60), primary_key=True)
+    email_id = db.Column(db.String(60))
+    password = db.Column(db.String(60))
 
     def __repr__(self):
         return "Credentials('{self.email_id}', '{self.password}')"
 
 class Product(db.Model):
     __tablename__ = 'Product'
-    product_id = db.Column(db.Integer, nullable=False, primary_key=True, autoincrement=True)
-    category_id = db.Column(db.Integer, nullable=False, )
-    product_name = db.Column(db.String(60), nullable=False)
+    product_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    category_id = db.Column(db.Integer)
+    name = db.Column(db.String(60))
     price = db.Column(db.Integer)
 
     Cart_Product_List = db.relationship("Cart")
@@ -69,18 +69,18 @@ class Product(db.Model):
 
 class Meal(db.Model):
     __tablename__ = 'Meal'
-    meal_id = db.Column(db.Integer, db.ForeignKey('MealDetails.meal_id'), nullable=False, primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('Product.product_id'),  nullable=False, primary_key=True)
+    meal_id = db.Column(db.Integer, db.ForeignKey('MealDetails.meal_id'), primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('Product.product_id'), primary_key=True)
 
     def __repr__(self):
         return "Meal('{self.meal_id}', '{self.product_id}')"
 
 class MealDetails(db.Model):
     __tablename__ = 'MealDetails'
-    meal_id = db.Column(db.Integer, nullable=False, primary_key=True, autoincrement=True)
-    meal_name = db.Column(db.String(60), nullable=False)
-    meal_availability = db.Column(db.String(60), nullable=False)
-    meal_price =db.Column(db.Integer, nullable=False)
+    meal_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(60))
+    availability = db.Column(db.String(60))
+    price =db.Column(db.Integer)
 
     Meal_list = db.relationship("Meal")
 

@@ -46,9 +46,10 @@ def Register():
        else:
           password = request.form['password']
           pw_hash = generate_password_hash(password)
-          User.Num_Users += 1
-          user1 = User(user_id = User.Num_Users , name = request.form['name'], email_id = request.form['email'], gender = request.form['gender'], age = request.form['age'])
-          Credential1 = Credentials(email_id = request.form['email'], password = pw_hash)
+
+          Num_Users = len(User.query.all())
+          user1 = User(user_id = Num_Users+1 , name = request.form['name'], email_id = request.form['email'], gender = request.form['gender'], age = request.form['age'])
+          Credential1 = Credentials(user_id = Num_Users+1, email_id = request.form['email'], password = pw_hash)
 
           db.session.add(user1)
           db.session.add(Credential1)
@@ -129,7 +130,7 @@ def ViewCart():
     Cart_Product_Names = []
     for entry in Cart_Entries:
         Product_obj = Product.query.filter(Product.product_id == entry.product_id).first()
-        Cart_Product_Names.append(Product_obj.product_name)
+        Cart_Product_Names.append(Product_obj.name)
 
     return render_template('CartDetailPage.html', CartList=Cart_Product_Names)
 
@@ -173,7 +174,7 @@ def ViewRecommendation():
             Products_List.append(Next_To_Buy_Ids[i])
 
     ## Intersection query to get most suitable meals from above list of products
-    Filter_Meals = Meal.query.filter(Meal.product_id == Products_List[0])options(load_only("meal_id")).all()
+    Filter_Meals = Meal.query.filter(Meal.product_id == Products_List[0]).options(load_only("meal_id")).all()
 
     index = 1
     while len(Filter_Meals)>5 and index<len(Products_List):
@@ -184,7 +185,7 @@ def ViewRecommendation():
     ## Get Meal names from mealdetail table from above meal ids (top 5)
     Meal_List = []
     for mealID in Filter_Meals:
-        Meal_name = MealDetails.query.filter(MealDetails.meal_id == mealID).options(load_only("meal_name"))
+        Meal_name = MealDetails.query.filter(MealDetails.meal_id == mealID).options(load_only("name"))
         Meal_List.append(Meal_name)
 
     return render_template('MealRecommendation.html', MealList=Meal_List)
@@ -209,13 +210,13 @@ def AddMissingProduct(MealID):
     Missing_products_Ids = Meal_Product_Ids.remove(Common_products)
 
     for missing_product_id in Missing_products_Ids:
-        Missing_product_name = Product.query.filter(Product.product_id==missing_product_id).options(load_only("product_name")).first()
+        Missing_product_name = Product.query.filter(Product.product_id==missing_product_id).options(load_only("name")).first()
         Missing_products.append(Missing_product_name)
 
     ## Implementation 2
     # for meal_product in Meal_Product_Ids :
     #     if meal_product not in Cart_Product_Ids:
-    #         Missing_product_name = Product.query.filter(Product.product_id==meal_product).options(load_only("product_name")).first()
+    #         Missing_product_name = Product.query.filter(Product.product_id==meal_product).options(load_only("name")).first()
     #         Missing_products.append(Missing_product_name)
 
     return render_template('HomePage.html', ProductList=Missing_products)
