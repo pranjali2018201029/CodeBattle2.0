@@ -142,7 +142,8 @@ def ViewCart():
     Cart_Product_Names = []
     for entry in Cart_Entries:
         Product_obj = Product.query.filter(Product.product_id == entry.product_id).first()
-        Cart_Product_Names.append(Product_obj.name)
+        cart_product_obj = [Product_obj.product_id, Product_obj.name, Product_obj.price]
+        Cart_Product_Names.append(cart_product_obj)
 
     return render_template('CartDetailPage.html', CartList=Cart_Product_Names)
 
@@ -156,7 +157,10 @@ def ViewRecommendation():
     # 6. Render MealRecommendation page with List of Meal names as parameter (MealIDs can be passed if required as key:val pairs).
 
     uid = current_user.get_id()
-    Cart_Product_Ids = Cart.query.filter(Cart.user_id == uid).options(load_only("product_id")).all()
+    Cart_Products = Cart.query.filter(Cart.user_id == uid).all()
+    Cart_Product_Ids = []
+    for product in Cart_Products:
+        Cart_Product_Ids.append(product.product_id)
 
     Obj_To_ML_Algo = {}
     Obj_To_ML_Algo['CustomerID'] = uid
@@ -186,19 +190,25 @@ def ViewRecommendation():
             Products_List.append(Next_To_Buy_Ids[i])
 
     ## Intersection query to get most suitable meals from above list of products
-    Filter_Meals = Meal.query.filter(Meal.product_id == Products_List[0]).options(load_only("meal_id")).all()
+    Filter_Meals1 = Meal.query.filter(Meal.product_id == Products_List[0]).all()
+    Filter_meals = []
+    for meal in Filter_Meals1:
+        Filter_meals.append(meal.meal_id)
 
     index = 1
     while len(Filter_Meals)>5 and index<len(Products_List):
-        Subquery1 = Meal.query.filter(Meal.product_id == Products_List[index]).options(load_only("meal_id")).all()
+        Subquery1 = Meal.query.filter(Meal.product_id == Products_List[index]).all()
+        Subquery1_results = []
+        for meal in Subquery1:
+            Subquery1_results.append(meal.meal_id)
         Filter_Meals = Filter_Meals.intersect(Subquery1)
         index += 1
 
     ## Get Meal names from mealdetail table from above meal ids (top 5)
     Meal_List = []
     for mealID in Filter_Meals:
-        Meal_name = MealDetails.query.filter(MealDetails.meal_id == mealID).options(load_only("name"))
-        Meal_List.append(Meal_name)
+        Meal = MealDetails.query.filter(MealDetails.meal_id == mealID).first()
+        Meal_List.append(Meal.name)
 
     return render_template('MealRecommendation.html', MealList=Meal_List)
 
@@ -212,8 +222,15 @@ def AddMissingProduct(MealID):
     # 4. render HomePage page with parameter value = above queried list.
 
     uid = current_user.get_id()
-    Cart_Product_Ids = Cart.query.filter(Cart.user_id == uid).options(load_only("product_id")).all()
-    Meal_Product_Ids = Meal.query.filter(Meal.meal_id == MealID).options(load_only("product_id")).all()
+    Cart_Products = Cart.query.filter(Cart.user_id == uid).all()
+    Cart_Product_Ids = []
+    for product in Cart_Products:
+        Cart_Product_Ids.append(product.product_id)
+
+    Meal_Products = Meal.query.filter(Meal.meal_id == MealID).all()
+    Meal_Product_Ids = []
+    for product in Meal_Products:
+        Meal_Product_Ids.append(product.product_id)
 
     Missing_products = []
 
@@ -222,8 +239,8 @@ def AddMissingProduct(MealID):
     Missing_products_Ids = Meal_Product_Ids.remove(Common_products)
 
     for missing_product_id in Missing_products_Ids:
-        Missing_product_name = Product.query.filter(Product.product_id==missing_product_id).options(load_only("name")).first()
-        Missing_products.append(Missing_product_name)
+        Missing_product = Product.query.filter(Product.product_id==missing_product_id).first()
+        Missing_products.append(Missing_product.name)
 
     ## Implementation 2
     # for meal_product in Meal_Product_Ids :

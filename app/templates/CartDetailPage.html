@@ -4,3 +4,208 @@ Input : List of Products in User's Cart
 Display : List of objects with Product name as link with Add/remove Quantity button[optional],
 View Recommendation and Checkout button at the end
 For now, Checkout button will do nothing -->
+<html>
+  <head>
+
+    <link href="{{ url_for('static',filename = 'styles.css') }}" rel="stylesheet" type="text/css">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <style>
+            .element
+               { position:fixed; bottom:2%; right:2%; }
+               .element2
+               { position:fixed; bottom:2%;  right:38%;}
+               .element3
+               { position:fixed; bottom:2%; left:2%; }
+          .cartbtn {
+            cursor:pointer;
+              cursor:hand;
+                }
+            table{
+              border: 1px solid #00498d;
+
+            }
+            table, th, td {
+
+              border-collapse: collapse;
+
+            }
+            th, td {
+              padding: 15px;
+              text-align: center;
+
+            }
+            th{
+              background: #00498d;
+              color: white
+            }
+
+            table#t01 {
+              width: 100%;
+              background-color: #f1f1c1;
+            }
+            div {
+              max-height: 96%;
+              overflow-y: auto;
+              margin: 3%;
+            }
+            thead tr{
+      position: absolute;
+      left: 0;
+      right: 15px;
+      /* to not cover the scrollbar*/
+      background: #00498d
+    }
+
+    thead th,
+    tfoot td {
+      display: inline-block;
+    }
+
+    thead tr {
+      top: 2%;
+      width:94%;
+      left: 3%;
+
+    }
+
+
+    th,
+    td {
+      width: calc((100%/3) - 5px);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    tbody tr td{
+      width: calc((100%/3));
+    }
+    /*give some space between thead and tfoot*/
+
+    tbody tr td {
+      padding-top: 25px;
+
+      padding-bottom: 30px;
+    }
+
+    tr:nth-child(even) {background-color:white}
+    tr:nth-child(odd) {background-color: #EFFBFC  ;}
+    /* unvisited link */
+    a:link {
+      color: #00498d;
+    }
+
+    /* visited link */
+    a:visited {
+      color: #01598d;
+    }
+
+    /* mouse over link */
+    a:hover {
+      color: black;
+    }
+
+    /* selected link */
+    a:active {
+      color: #01598d;
+    }
+    </style>
+      </head>
+
+        <body style="background-color:white";font-family: Arial, Helvetica, sans-serif;>
+
+          <div>
+            <table style="width: 100%;margin-top: 10px" id="ProductTable">
+                <thead>
+                    <tr style="background-color: #00498d">
+                      <th >Product Name</th>
+                      <th>Price</th>
+                      <th>Quantity</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                    {% for product in CartList %}
+                    <tr id="{{product[0]}}">
+                      <td >{{ product[1] }}</td>
+                      <td>{{ product[2]}}</td>
+                      <td><button type="button" style="display: inline-block;" onclick="dec(this.parentNode)">-</button><input type="number" value=1 style="width:15%;text-align:center"/><button type="button" onclick="inc(this.parentNode)">+</button></td>
+
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+
+              </table>
+            </div>
+
+            <div class="element" >
+
+                    <button style="background: #FFB81C" onclick="" id="Total">Total Amount : </button>
+
+                  </div>
+                  <center>
+                  <div class="element2" >
+
+                      <a href="/ViewRecommendation"><button style="background: #FFB81C" onclick="" id="Total2">Recommendation List </button></a>
+
+                    </div>
+                </center>
+                    <div class="element3" >
+
+                        <button style="background: #FFB81C" onclick="" id="Total3">Checkout </button>
+
+                      </div>
+            <ul id="productlist">
+
+            </ul>
+
+            <script>
+
+
+            var tab=document.getElementById('ProductTable');
+            prows=tab.rows;
+            prows[1].parentNode.removeChild(prows[1]);
+
+
+
+        function dec(ele)
+      {
+
+        numele=ele.children[1];
+        if(numele.value>0)
+        {
+          numele.value=numele.value-1;
+        }
+        amt();
+
+      }
+      function inc(ele)
+      {
+
+        numele=ele.children[1];
+        numele.value=parseInt(numele.value)+parseInt(1);
+        amt();
+      }
+      amt();
+      function amt()
+      {
+        var amt=0;
+        nrows=tab.rows.length;
+        for(var i=1;i<nrows;i++)
+        {
+          var tr2=tab.rows[i];
+          var price=parseInt(tr2.cells[1].innerHTML);
+          var qnt=parseInt(tr2.cells[2].children[1].value);
+          amt=amt+(price*qnt);
+        }
+        document.getElementById("Total").innerHTML="Total Amount : "+amt;
+      }
+
+
+            </script>
+
+
+        </body>
+    </html>
