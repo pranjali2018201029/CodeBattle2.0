@@ -15,8 +15,9 @@ from sqlalchemy import update
 from werkzeug.security import generate_password_hash,check_password_hash
 from sqlalchemy import func
 from sqlalchemy import desc
+from sqlalchemy.orm import load_only
 import json
-from app.models import User, Credentials, Product
+from app.models import User, Credentials, Product, Meal, MealDetails, Cart
 
 # Use SQLAlchemy for SQLite queries, install and import packages here as and when required.
 
@@ -66,11 +67,21 @@ def Logging():
 def ViewAllProducts():
     # 1. Database query to get all products from Products table. [ProductID, Name as key:val pair if required]
     # 2. render HomePage page with parameter value = above queried list.
+    # 3. Send list of products already in cart as parameter
 
-    Product_List = Product.query.with_entities(Product.name, Product.price).all()
-    print("Product_List", Product_List)
+    Product_Tuples = Product.query.with_entities(Product.product_id, Product.name, Product.price).all()
+    Product_List = []
+    for i in range(1,len(Product_Tuples)):
+        Product_List.append(list(Product_Tuples[i]))
 
-    return render_template('HomePage.html', ProductList=json.dumps(Product_List))
+    uid = current_user.get_id()
+    Cart_Products = Cart.query.filter(Cart.user_id == uid).all()
+
+    Already_Cart = []
+    for product in Cart_Products:
+        Already_Cart.append(product.product_id)
+
+    return render_template('HomePage.html', ProductList=Product_List, Cart_Products=Already_Cart)
 
 ## VIEW 3 ROUTE
 @app.route('/Login', methods = ['POST'])
@@ -114,7 +125,8 @@ def AddToCart(ProductID):
     CartObject = Cart(user_id = uid, product_id = ProductID)
     db.session.add(CartObject)
     db.session.commit()
-    return
+
+    return redirect('/Home')
 
 @app.route('/ViewCart', methods = ['GET', 'POST'])
 def ViewCart():
@@ -148,7 +160,7 @@ def ViewRecommendation():
 
     Obj_To_ML_Algo = {}
     Obj_To_ML_Algo['CustomerID'] = uid
-    Obj_To_ML_Algo['ProductID'] = Cart_Product_Ids
+    Obj_To_ML_Algo['ProductID'] = list(Cart_Product_Ids)
 
     # Call ML Algo with above object and get list of product IDs user will most likely to buy next.
 

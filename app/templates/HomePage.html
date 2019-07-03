@@ -123,12 +123,17 @@ Display : List of objects with Product name as link with Add to Cart button, Vie
                     </tr>
                   </thead>
                   <tbody>
-                    <tr style="text-align: center;">
-                      <td>Column one</td>
-                      <td>100</td>
-                      <td>Column three</td>
+                    {% for product in ProductList %}
+                    <tr>
+                      <td >{{ product[1] }}</td>
+                      <td>{{ product[2] }}</td>
+                      {% if product[0] in Cart_Products %}
+                        <td id="{{product[0]}}">Added To Cart</td>
+                      {% else %}
+                        <td id="{{product[0]}}"><a href="AddToCart/{{ product[0]}}"><img src="static/add-to-cart.png" alt="Add to Cart" class="cartbtn"  height="5%" width="8%" ></a></td>
+                      {% endif %}
                     </tr>
-
+                    {% endfor %}
                   </tbody>
 
               </table>
@@ -136,49 +141,13 @@ Display : List of objects with Product name as link with Add to Cart button, Vie
 
               <div class="element" >
 
-                <button style="background: #FFB81C" onclick="{{ url_for('ViewCart') }}">Go To My Cart</button>
+                <a href="/ViewCart"><button style="background: #FFB81C" >Go To My Cart</button></a>
 
               </div>
             <ul id="productlist">
 
             </ul>
 
-            <script>
-
-            var ProductList = [{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Megan',"price":140,"link": "www.google.com"},{"name": 'Aaliyah',"price":160,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"}]
-
-            var tab=document.getElementById('ProductTable');
-
-            for (var product in {{ProductList}}) {
-
-            var tableI=tab.insertRow(-1);
-            var nameCell = tableI.insertCell(0);
-            var priceCell= tableI.insertCell(1);
-            var addTocartCell = tableI.insertCell(2);
-
-            var name={{ProductList[product].name}};
-            var price={{ProductList[product].price}};
-            var link={{ProductList[product].link}};
-
-            addTocartCell.setAttribute("key",name);
-            nameCell.innerHTML='<a href='+link+'>'+name+'</a>';
-            priceCell.innerHTML=price;
-            cn=addTocartCell.childNodes;
-            addTocartCell.innerHTML='<img src="static/add-to-cart.png" alt="Add to Cart" class="cartbtn"  height="5%" width="8%" onclick="Add(this,this.parentNode.getAttribute(\'key\'));">';
-
-          }
-          prows=tab.rows;
-          prows[1].parentNode.removeChild(prows[1]);
-
-          function Add(ele,key){
-            alert(key);
-            alert(ele);
-            parent=ele.parentNode;
-            parent.innerHTML='Added to Cart'
-
-            AddToCart();
-            }
-            </script>
 
 
         </body>
