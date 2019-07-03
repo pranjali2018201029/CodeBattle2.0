@@ -4,4 +4,182 @@ This page will also used to display Missing Ingredients for selected meal.
 Input : List of Products (all products from Products table or Missing products)
 Display : List of objects with Product name as link with Add to Cart button, View Cart button at the end  -->
 
-<p>HomePage is rendering</p>
+
+<html>
+  <head>
+
+    <link href="{{ url_for('static',filename = 'styles.css') }}" rel="stylesheet" type="text/css">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <style>
+            .element
+               { position:fixed; bottom:2%; right:2%; }
+          .cartbtn {
+            cursor:pointer;
+              cursor:hand;
+                }
+            table{
+              border: 1px solid #00498d;
+
+            }
+            table, th, td {
+
+              border-collapse: collapse;
+
+            }
+            th, td {
+              padding: 15px;
+              text-align: center;
+
+            }
+            th{
+              background: #00498d;
+              color: white
+            }
+
+            table#t01 {
+              width: 100%;
+              background-color: #f1f1c1;
+            }
+            div {
+              max-height: 96%;
+              overflow-y: auto;
+              margin: 3%;
+            }
+            thead tr{
+      position: absolute;
+      left: 0;
+      right: 15px;
+      /* to not cover the scrollbar*/
+      background: #00498d
+    }
+
+    thead th,
+    tfoot td {
+      display: inline-block;
+    }
+
+    thead tr {
+      top: 2%;
+      width:94%;
+      left: 3%;
+
+    }
+
+
+    th,
+    td {
+      width: calc((100%/3) - 5px);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    tbody tr td{
+      width: calc((100%/3));
+    }
+    /*give some space between thead and tfoot*/
+
+    tbody tr td {
+      padding-top: 25px;
+
+      padding-bottom: 30px;
+    }
+
+    tr:nth-child(even) {background-color:white}
+    tr:nth-child(odd) {background-color: #EFFBFC  ;}
+    /* unvisited link */
+    a:link {
+      color: #00498d;
+    }
+
+    /* visited link */
+    a:visited {
+      color: #01598d;
+    }
+
+    /* mouse over link */
+    a:hover {
+      color: black;
+    }
+
+    /* selected link */
+    a:active {
+      color: #01598d;
+    }
+    </style>
+      </head>
+
+        <body style="background-color:white";font-family: Arial, Helvetica, sans-serif;>
+
+          <div>
+            <table style="width: 100%;margin-top: 10px" id="ProductTable">
+                <thead>
+                    <tr style="background-color: #00498d">
+                      <th >Product Name</th>
+                      <th>Price</th>
+                      <th>Buy Now</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style="text-align: center;">
+                      <td>Column one</td>
+                      <td>100</td>
+                      <td>Column three</td>
+                    </tr>
+
+                  </tbody>
+
+              </table>
+            </div>
+
+              <div class="element" >
+
+                <button style="background: #FFB81C" onclick="{{ url_for('ViewCart') }}">Go To My Cart</button>
+
+              </div>
+            <ul id="productlist">
+
+            </ul>
+
+            <script>
+
+            var ProductList = [{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Megan',"price":140,"link": "www.google.com"},{"name": 'Aaliyah',"price":160,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"}]
+
+            var tab=document.getElementById('ProductTable');
+
+            for (var product in {{ProductList}}) {
+
+            var tableI=tab.insertRow(-1);
+            var nameCell = tableI.insertCell(0);
+            var priceCell= tableI.insertCell(1);
+            var addTocartCell = tableI.insertCell(2);
+
+            var name={{ProductList[product].name}};
+            var price={{ProductList[product].price}};
+            var link={{ProductList[product].link}};
+
+            addTocartCell.setAttribute("key",name);
+            nameCell.innerHTML='<a href='+link+'>'+name+'</a>';
+            priceCell.innerHTML=price;
+            cn=addTocartCell.childNodes;
+            addTocartCell.innerHTML='<img src="static/add-to-cart.png" alt="Add to Cart" class="cartbtn"  height="5%" width="8%" onclick="Add(this,this.parentNode.getAttribute(\'key\'));">';
+
+          }
+          prows=tab.rows;
+          prows[1].parentNode.removeChild(prows[1]);
+
+          function Add(ele,key){
+            alert(key);
+            alert(ele);
+            parent=ele.parentNode;
+            parent.innerHTML='Added to Cart'
+
+            AddToCart();
+            }
+            </script>
+
+
+        </body>
+    </html>

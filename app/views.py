@@ -15,7 +15,7 @@ from sqlalchemy import update
 from werkzeug.security import generate_password_hash,check_password_hash
 from sqlalchemy import func
 from sqlalchemy import desc
-
+import json
 from app.models import User, Credentials, Product
 
 # Use SQLAlchemy for SQLite queries, install and import packages here as and when required.
@@ -60,11 +60,19 @@ def Register():
 def Logging():
     return render_template('Login.html')
 
-@app.route('/Home', methods = ['POST'])
+@app.route('/Home', methods = ['GET', 'POST'])
 def ViewAllProducts():
     # 1. Database query to get all products from Products table. [ProductID, Name as key:val pair if required]
     # 2. render HomePage page with parameter value = above queried list.
-    return render_template('HomePage.html', ProductList=[])
+    Product_List = [{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Megan',"price":140,"link": "www.google.com"},{"name": 'Aaliyah',"price":160,"link": "www.google.com"},
+    {"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},
+    {"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},
+    {"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},
+    {"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},
+    {"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"}]
+
+
+    return render_template('HomePage.html', ProductList=json.dumps(Product_List))
 
 ## VIEW 3 ROUTE
 @app.route('/Login', methods = ['POST'])
