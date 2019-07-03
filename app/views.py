@@ -1,11 +1,22 @@
 # This is Main Controller of the webapp
-
 from flask import Flask
-from flask import render_template, url_for, redirect, request, make_response
+from flask_nav.elements import Navbar, Subgroup, View, Link, Text, Separator
+from flask import render_template
+from flask import url_for, redirect, request, make_response,flash
 import sqlalchemy
 from app import app, db, nav
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_, or_
+from flask_login import current_user, login_user
+from flask_wtf import FlaskForm
+from flask_login import logout_user
+from sqlalchemy import update
+from werkzeug.security import generate_password_hash,check_password_hash
+from sqlalchemy import func
+from sqlalchemy import desc
+
+from app.models import User, Credentials, Product
 
 # Use SQLAlchemy for SQLite queries, install and import packages here as and when required.
 
@@ -28,17 +39,55 @@ def Register():
     # 3. Add entry in User table with user info.
     # 4. Commit database changes.
     # 5. render Login page if successfully registered else display error message.
+    if request.method == 'POST':
+       if not request.form['name'] or not request.form['email'] or not request.form['password'] or not request.form['gender'] or not request.form['age']:
+          flash('Please enter all the fields', 'error')
+       else:
+          password = request.form['password']
+          pw_hash = generate_password_hash(password)
+          User.Num_Users += 1
+          user1 = User(user_id = User.Num_Users , name = request.form['name'], email_id = request.form['email'], gender = request.form['gender'], age = request.form['age'])
+          Credential1 = Credentials(email_id = request.form['email'], password = pw_hash)
+
+          db.session.add(user1)
+          db.session.add(Credential1)
+          db.session.commit()
+
+          flash('Record was successfully added')
+    return render_template('Login.html')
+
+@app.route('/Logging', methods = ['GET', 'POST'])
+def Logging():
     return render_template('Login.html')
 
 ## VIEW 3 ROUTE
-@app.route('/Login', methods = ['GET', 'POST'])
+@app.route('/Login', methods = ['POST'])
 def Login():
     # Use post method as User credentials should not be passed through URL.
     # 1. Get Form content (User credentials) by POST method.
     # 2. Authenticate user from database. Do below steps if authenticated else show error msg.
     # 3. Database query to get all products from Products table. [ProductID, Name as key:val pair if required]
     # 4. render HomePage page with parameter value = above queried list.
-    return render_template('HomePage.html', ProductList=[])
+    form = FlaskForm()
+    Authenticate = False
+
+    if request.method == 'POST':
+        emailid=request.form['email']
+        password=request.form['password']
+
+        user = User.query.filter(User.email_id==emailid).first()
+        Cred = Credentials.query.filter(Credentials.email_id==emailid).first()
+
+        if user and Cred and check_password_hash(Cred.password, password):
+            login_user(user)
+            user.is_authenticated = True
+            Authenticate = True
+            flash('Successful login!')
+
+    if Authenticate == True :
+        return render_template('HomePage.html', ProductList=[])
+    else :
+        return render_template('Login.html')
 
 @app.route('/AddToCart/<ProductID>', methods = ['GET', 'POST'])
 def AddToCart(ProductID):
