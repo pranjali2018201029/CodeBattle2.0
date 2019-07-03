@@ -39,6 +39,7 @@ def Register():
     # 3. Add entry in User table with user info.
     # 4. Commit database changes.
     # 5. render Login page if successfully registered else display error message.
+
     if request.method == 'POST':
        if not request.form['name'] or not request.form['email'] or not request.form['password'] or not request.form['gender'] or not request.form['age']:
           flash('Please enter all the fields', 'error')
@@ -64,13 +65,9 @@ def Logging():
 def ViewAllProducts():
     # 1. Database query to get all products from Products table. [ProductID, Name as key:val pair if required]
     # 2. render HomePage page with parameter value = above queried list.
-    Product_List = [{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Megan',"price":140,"link": "www.google.com"},{"name": 'Aaliyah',"price":160,"link": "www.google.com"},
-    {"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},
-    {"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},
-    {"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},
-    {"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"},
-    {"name": 'Aaron',"price":120,"link": "www.google.com"},{"name": 'Aaron',"price":120,"link": "www.google.com"}]
 
+    Product_List = Product.query.with_entities(Product.name, Product.price).all()
+    print("Product_List", Product_List)
 
     return render_template('HomePage.html', ProductList=json.dumps(Product_List))
 
@@ -111,7 +108,12 @@ def AddToCart(ProductID):
     # 4. Commit database after above entry.
     # 5. return some boolean value which will be used in HomePage view to decide whether enable or disable "Add to Cart" button.
     # 6. You can check other alternative OR refer add to favorites functionality in sample Gaana app.
-    return AddedToCart
+
+    uid = current_user.get_id()
+    CartObject = Cart(user_id = uid, product_id = ProductID)
+    db.session.add(CartObject)
+    db.session.commit()
+    return
 
 @app.route('/ViewCart', methods = ['GET', 'POST'])
 def ViewCart():
@@ -120,7 +122,17 @@ def ViewCart():
     # 3. Get corresponding product names from product detail table.
     # 4. render CartDetailPage with parameter = List of product names in cart.
     # 5. You can pass ProductID list along with is as list of key:value pair if ids are also required.
-    return render_template('CartDetailPage.html', CartList=[])
+
+    uid = current_user.get_id()
+    Cart_Entries = Cart.query.filter(Cart.user_id == uid).all()
+
+    Cart_Product_Names = []
+    for entry in Cart_Entries:
+        Cart_Product_Id = entry.product_id
+        Product_obj = Product.query.filter(Product.product_id == entry.product_id).first()
+        Cart_Product_Names.append(Product_obj.product_name)
+
+    return render_template('CartDetailPage.html', CartList=Cart_Product_Names)
 
 @app.route('/ViewRecommendation', methods = ['GET', 'POST'])
 def ViewRecommendation():
@@ -130,6 +142,39 @@ def ViewRecommendation():
     # 4. Get response from TF-Serving : List of ProductIDs user id most likely to buy next.
     # 5. Database query to find most suitable MealIDs from above two lists : cartlist and predicted list. [Top 5 meals]
     # 6. Render MealRecommendation page with List of Meal names as parameter (MealIDs can be passed if required as key:val pairs).
+
+    uid = current_user.get_id()
+    Cart_Entries = Cart.query.filter(Cart.user_id == uid).all()
+
+    Cart_Product_Ids = []
+    for entry in Cart_Entries :
+        Cart_Product_Ids.append(Cart_Entries.product_id)
+
+    Obj_To_ML_Algo = {}
+    Obj_To_ML_Algo['CustomerID'] = uid
+    Obj_To_ML_Algo['ProductID'] = Cart_Product_Ids
+
+    # Call ML Algo with above object and get list of product IDs user will most likely to buy next.
+
+    Next_To_Buy_Ids = []
+
+    # Product list will contain product Ids in priority : 1. Common in cart and next to buy 2. Only in Cart 3. Only in Next to buy
+    Products_List = []
+    for cart_product in Cart_Product_Ids :
+        if cart_product in Next_To_Buy_Ids :
+            Products_List.append(cart_product)
+            Next_To_Buy_Ids.remove(cart_product)
+            Cart_Product_Ids.remove(cart_product)
+
+    for cart_product in Cart_Product_Ids :
+        Products_List.append(cart_product)
+
+    for next_id in Next_To_Buy_Ids:
+        Products_List.append(next_id)
+
+
+
+
     return render_template('MealRecommendation.html', MealList=[])
 
 @app.route('/AddMissingProduct/<MealID>', methods = ['GET', 'POST'])
@@ -142,6 +187,12 @@ def AddMissingProduct(MealID):
     # 4. render HomePage page with parameter value = above queried list.
     return render_template('HomePage.html', ProductList=[])
 
+@app.route('/logout', methods = ['GET', 'POST'])
+def logout_Dummy():
+    user = current_user
+    user.is_authenticated = False
+    logout_user()
+    return render_template('firstpage.html', message = "Logged out successfully")
 
 # Future Scope :
 # 1. Product Details page
