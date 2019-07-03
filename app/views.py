@@ -3,7 +3,7 @@
 from flask import Flask
 from flask import render_template, url_for, redirect, request, make_response
 import sqlalchemy
-
+from app import app, db, nav
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_, or_
 
@@ -15,6 +15,11 @@ def firstpage():
     return render_template('FirstPage.html',title='First Page')
 
 ## VIEW 2 ROUTE
+@app.route('/Registration')
+def Registration():
+    return render_template('Register.html',title='Registration Page')
+
+## VIEW 3 ROUTE
 @app.route('/Register', methods = ['GET', 'POST'])
 def Register():
     # Use post method as User Info should not be passed through URL.

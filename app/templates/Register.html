@@ -1,3 +1,90 @@
 <!-- Route : "/Register"
 Render when Register button on First page is clicked
 Form with input fields for Name, emailID, Password (hidden), Age, Gender(Options to select) and Register button  -->
+
+<html>
+  <head>
+    {% if title %}
+    <title>{{ title }}</title>
+    {% else %}
+    <title>Gaana Clone</title>
+    {% endif %}
+    <link href="{{ url_for('static',filename = 'styles.css') }}" rel="stylesheet" type="text/css">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  </head>
+  <body style="background-color:#00498d";font-size: 2em; font-family: Arial, Helvetica, sans-serif;">
+
+        <form action="/" method="post" style="background-color:white;width: 100%;height: 80%">
+            <div>
+            <div style="float: left;">
+            <label>
+              <p class="label-txt" style="font-size: 1em">NAME</p>
+              <br>
+              <input type="text" class="input" name="name" id="cc">
+              <div class="line-box">
+                <div class="line"></div>
+              </div>
+            </label>
+            <br>
+            <br>
+            <label>
+              <p class="label-txt" style="font-size: 1em">EMAIL</p>
+              <br>
+              <input type="text" class="input" name="email" id="dd">
+              <div class="line-box">
+                <div class="line"></div>
+              </div>
+            </label>
+            <br>
+            <br>
+            <label>
+              <p class="label-txt" style="font-size: 1em">PASSWORD</p>
+              <input type="password" class="input" name="password" id="ee">
+              <div class="line-box">
+                <div class="line"></div>
+              </div>
+            </label>
+
+        </div>
+        <div>
+            <label>
+                <p class="label-txt" style="font-size: 1em">Age</p>
+                <input type="number" class="input" name="age" id="age">
+                <div class="line-box">
+                  <div class="line"></div>
+                </div>
+              </label>
+              <br>
+              <br>
+              <label>
+
+                  <input type="number" class="input" name="age" id="age" style="visibility: hidden">
+                  <div class="line-box" style="visibility: hidden" >
+                    <div class="line"></div>
+                  </div>
+                  <p class="label-txt" style="font-size: 1em;top: 0em">Gender</p>
+                  <br>
+                  <select name="gender" class="line-box" style="height: 25px">
+                      <option value="male"  >Male</option>
+                      <option value="female" >female</option>
+                      <option value="other" >Other</option>
+
+                    </select>
+
+                </label>
+        </div>
+      </div>
+      <br>
+      <br>
+        <div class="btn-group" >
+            <button  type="submit" style="font-size: 1em;background-color:#FFB81C" formaction="{{ url_for('Register') }}" id="ff">REGISTER</button>
+          </div>
+        </form>
+
+
+      {% block content %}{% endblock %}
+    </body>
+    </html>
