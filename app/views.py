@@ -60,14 +60,20 @@ def Register():
 def Logging():
     return render_template('Login.html')
 
+@app.route('/Home', methods = ['POST'])
+def ViewAllProducts():
+    # 1. Database query to get all products from Products table. [ProductID, Name as key:val pair if required]
+    # 2. render HomePage page with parameter value = above queried list.
+    return render_template('HomePage.html', ProductList=[])
+
 ## VIEW 3 ROUTE
 @app.route('/Login', methods = ['POST'])
 def Login():
     # Use post method as User credentials should not be passed through URL.
     # 1. Get Form content (User credentials) by POST method.
     # 2. Authenticate user from database. Do below steps if authenticated else show error msg.
-    # 3. Database query to get all products from Products table. [ProductID, Name as key:val pair if required]
-    # 4. render HomePage page with parameter value = above queried list.
+    # 3. Call ViewAllProducts()
+
     form = FlaskForm()
     Authenticate = False
 
@@ -85,7 +91,7 @@ def Login():
             flash('Successful login!')
 
     if Authenticate == True :
-        return render_template('HomePage.html', ProductList=[])
+        return redirect('/Home')
     else :
         return render_template('Login.html')
 

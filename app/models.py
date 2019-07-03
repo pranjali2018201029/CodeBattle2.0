@@ -14,6 +14,8 @@ class User(db.Model):
     email_id = db.Column(db.String(60), nullable=False)
     age = db.Column(db.Integer, nullable=False)
 
+    Cart_List = db.relationship("Cart")
+
     def __repr__(self):
         return "User('{self.user_id}', '{self.name}', '{self.email_id}', '{self.gender}', '{self.age}')"
 
@@ -57,6 +59,38 @@ class Product(db.Model):
     product_id = db.Column(db.Integer, nullable=False, primary_key=True, autoincrement=True)
     category_id = db.Column(db.Integer, nullable=False, )
     product_name = db.Column(db.String(60), nullable=False)
+    price = db.Column(db.Integer)
+
+    Cart_Product_List = db.relationship("Cart")
+    Meal_Product_List = db.relationship("Meal")
 
     def __repr__(self):
-        return "Credentials('{self.product_id}', '{self.category_id}', '{self.product_name}')"
+        return "Product('{self.product_id}', '{self.category_id}', '{self.product_name}', '{self.price}')"
+
+class Meal(db.Model):
+    __tablename__ = 'Meal'
+    meal_id = db.Column(db.Integer, db.ForeignKey('MealDetails.meal_id'), nullable=False, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('Product.product_id'),  nullable=False, primary_key=True)
+
+    def __repr__(self):
+        return "Meal('{self.meal_id}', '{self.product_id}')"
+
+class MealDetails(db.Model):
+    __tablename__ = 'MealDetails'
+    meal_id = db.Column(db.Integer, nullable=False, primary_key=True, autoincrement=True)
+    meal_name = db.Column(db.String(60), nullable=False)
+    meal_availability = db.Column(db.String(60), nullable=False)
+    meal_price =db.Column(db.Integer, nullable=False)
+
+    Meal_list = db.relationship("Meal")
+
+    def __repr__(self):
+        return "MealDetails('{self.meal_id}', '{self.meal_name}', '{self.meal_availability}', '{self.meal_price}')"
+
+class Cart(db.Model):
+    __tablename__ = 'Cart'
+    user_id = db.Column(db.Integer, db.ForeignKey('User.user_id'), nullable=False, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('Product.product_id'), nullable=False, primary_key=True)
+
+    def __repr__(self):
+        return "Meal('{self.user_id}', '{self.product_id}')"

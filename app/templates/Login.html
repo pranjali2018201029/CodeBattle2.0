@@ -7,7 +7,7 @@ Form with input fields for emailID, Password (hidden) and Login button  -->
     {% if title %}
     <title>{{ title }}</title>
     {% else %}
-    <title>Gaana Clone</title>
+    <title>Meal Recommender</title>
     {% endif %}
     <link href="{{ url_for('static',filename = 'styles.css') }}" rel="stylesheet" type="text/css">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
@@ -55,4 +55,3 @@ Form with input fields for emailID, Password (hidden) and Login button  -->
       {% block content %}{% endblock %}
     </body>
   </html>
-  
