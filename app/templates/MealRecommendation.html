@@ -68,7 +68,7 @@ Future : We can keep track of number of hits on this button to measure how many 
     }
 
     thead tr {
-      top: 2%;
+      top: 6%;
       width:94%;
       left: 3%;
 
@@ -118,7 +118,7 @@ Future : We can keep track of number of hits on this button to measure how many 
       </head>
 
         <body style="background-color:white";font-family: Arial, Helvetica, sans-serif;>
-
+          <p style="text-align: center; color : #00498d; font-size : 20px;"><b>Meal Recommendation Wizard</b></p>
           <div>
             <table style="width: 100%;margin-top: 10px" id="ProductTable">
                 <thead>
@@ -139,7 +139,7 @@ Future : We can keep track of number of hits on this button to measure how many 
                       <td >{{ meal[1] }}</td>
                       <td><a href="/AddToCart/{{ meal[0] }}"><button style="background: #FFB81C" onclick="" id="Total2">Add Meal </button></a>
                       </td>
-                      <td><a href="AddMissingProduct/{{ meal[0] }}"><button style="background: #FFB81C" onclick="" id="Total2">Add Missing Ingredients</button></a>
+                      <td><a href="AddMissingProduct/{{ meal[0] }}"><button style="background: #8BC34A" onclick="" id="Total2">Add Missing Ingredients</button></a>
                       </td>
                     </tr>
                     {% endfor %}

@@ -62,7 +62,7 @@ Display : List of objects with Product name as link with Add to Cart button, Vie
     }
 
     thead tr {
-      top: 2%;
+      top: 6%;
       width:94%;
       left: 3%;
 
@@ -112,6 +112,7 @@ Display : List of objects with Product name as link with Add to Cart button, Vie
       </head>
 
         <body style="background-color:white";font-family: Arial, Helvetica, sans-serif;>
+          <p style="text-align: center; color : #00498d; font-size : 20px;"><b>{{Heading}}</b></p>
 
           <div>
             <table style="width: 100%;margin-top: 10px" id="ProductTable">
@@ -130,7 +131,7 @@ Display : List of objects with Product name as link with Add to Cart button, Vie
                       {% if product[0] in Cart_Products %}
                         <td id="{{product[0]}}">Added To Cart</td>
                       {% else %}
-                        <td id="{{product[0]}}"><a href="AddToCart/{{ product[0]}}"><img src="static/add-to-cart.png" alt="Add to Cart" class="cartbtn"  height="5%" width="8%" ></a></td>
+                        <td id="{{product[0]}}"><a href="/AddToCart/{{ product[0]}}/{{ Current_meal }}"><img src="/static/add-to-cart.png" alt="Add to Cart" class="cartbtn"  height="5%" width="8%" ></a></td>
                       {% endif %}
                     </tr>
                     {% endfor %}

@@ -24,6 +24,7 @@ from app.models import User, Credentials, Product, Meal, MealDetails, Cart
 ## VIEW 1 ROUTE
 @app.route('/')
 def firstpage():
+    # Encrypt_Password()
     return render_template('FirstPage.html',title='First Page')
 
 ## VIEW 2 ROUTE
@@ -46,11 +47,12 @@ def Register():
           flash('Please enter all the fields', 'error')
        else:
           password = request.form['password']
-          pw_hash = generate_password_hash(password)
+          # pw_hash = generate_password_hash(password)
 
           Num_Users = len(User.query.all())
           user1 = User(user_id = Num_Users+1 , name = request.form['name'], email_id = request.form['email'], gender = request.form['gender'], age = request.form['age'])
-          Credential1 = Credentials(user_id = Num_Users+1, email_id = request.form['email'], password = pw_hash)
+          # Credential1 = Credentials(user_id = Num_Users+1, email_id = request.form['email'], password = pw_hash)
+          Credential1 = Credentials(user_id = Num_Users+1, email_id = request.form['email'], password = password)
 
           db.session.add(user1)
           db.session.add(Credential1)
@@ -81,7 +83,7 @@ def ViewAllProducts():
     for product in Cart_Products:
         Already_Cart.append(product.product_id)
 
-    return render_template('HomePage.html', ProductList=Product_List, Cart_Products=Already_Cart)
+    return render_template('HomePage.html', ProductList=Product_List, Cart_Products=Already_Cart, Heading="All Products", Current_meal = -1)
 
 ## VIEW 3 ROUTE
 @app.route('/Login', methods = ['POST'])
@@ -98,12 +100,31 @@ def Login():
         emailid=request.form['email']
         password=request.form['password']
 
-        user = User.query.filter(User.email_id==emailid).first()
-        Cred = Credentials.query.filter(Credentials.email_id==emailid).first()
+        print("Creds: ", emailid, password)
 
-        if user and Cred and check_password_hash(Cred.password, password):
-            login_user(user)
-            user.is_authenticated = True
+        users = User.query.filter(User.email_id==emailid).all()
+        Creds = Credentials.query.filter(Credentials.email_id==emailid).all()
+
+        # if user and Cred and check_password_hash(Cred.password, password):
+        #     login_user(user)
+        #     user.is_authenticated = True
+        #     Authenticate = True
+        #     flash('Successful login!')
+
+        Check = False
+        for user1 in Creds :
+            if (user1.password == password):
+                Check = True
+                Auth_User = User.query.filter(User.user_id == user1.user_id).first()
+                Cred = user1
+
+        print("User found: ", Cred.email_id, Cred.password)
+        print("Check Password : ",Cred.password, password, (Cred.password == password))
+
+        if Check and Cred and (Cred.password == password):
+            login_user(Auth_User)
+            Auth_User.is_authenticated = True
+            print("Authenticated")
             Authenticate = True
             flash('Successful login!')
 
@@ -112,8 +133,8 @@ def Login():
     else :
         return render_template('Login.html')
 
-@app.route('/AddToCart/<ProductID>', methods = ['GET', 'POST'])
-def AddToCart(ProductID):
+@app.route('/AddToCart/<ProductID>/<MealID>', methods = ['GET', 'POST'])
+def AddToCart(ProductID, MealID):
     # 1. Get current User's ID to add product in particular user's cart.
     # 2. Get ProductID as a parameter.
     # 3. Add new entry in Cart table with above UserID and ProductID.
@@ -126,7 +147,12 @@ def AddToCart(ProductID):
     db.session.add(CartObject)
     db.session.commit()
 
-    return redirect('/Home')
+    print("ProductID: ", ProductID)
+    print("MealID: ", MealID)
+    if int(MealID) == -1 :
+        return redirect('/Home')
+    else :
+        return redirect('/AddMissingProduct/' + str(MealID))
 
 @app.route('/ViewCart', methods = ['GET', 'POST'])
 def ViewCart():
@@ -166,6 +192,8 @@ def ViewRecommendation():
     Obj_To_ML_Algo['CustomerID'] = uid
     Obj_To_ML_Algo['ProductID'] = list(Cart_Product_Ids)
 
+    print Obj_To_ML_Algo
+
     # Call ML Algo with above object and get list of product IDs user will most likely to buy next.
 
     Next_To_Buy_Ids = [3,6,7,14,16,34,58,76,98,374]
@@ -202,11 +230,11 @@ def ViewRecommendation():
     while len(Filter_Meals1)==0 and index<len(Products_List):
         Filter_Meals1 = Meal.query.filter(Meal.product_id == Products_List[index]).all()
         print("Filter_Meals1 " + str(index) +": ", Filter_Meals1)
-        Filter_meals = []
-        for meal in Filter_Meals1:
-            Filter_meals.append(meal.meal_id)
         index += 1
 
+    Filter_meals = []
+    for meal in Filter_Meals1:
+        Filter_meals.append(meal.meal_id)
     print("Filter_meals first : ", Filter_meals)
 
     while len(Filter_meals)>5 and index<len(Products_List):
@@ -235,6 +263,7 @@ def AddMissingProduct(MealID):
     # 4. DB query to get missing productIDs using above MealID and List of Cart ProductIDs.
     # 5. DB Query to get corresponding Product Names from Product Detail table. [ProductID, Name as key:val pair if required]
     # 4. render HomePage page with parameter value = above queried list.
+    MealID = int(MealID)
 
     uid = current_user.get_id()
     Cart_Products = Cart.query.filter(Cart.user_id == uid).all()
@@ -263,7 +292,7 @@ def AddMissingProduct(MealID):
             Missing_product = Product.query.filter(Product.product_id==meal_product).first()
             Missing_products.append([Missing_product.product_id, Missing_product.name, Missing_product.price])
 
-    return render_template('HomePage.html', ProductList=Missing_products, Cart_Products=Cart_Product_Ids)
+    return render_template('HomePage.html', ProductList=Missing_products, Cart_Products=Cart_Product_Ids, Heading="Missing Products", Current_meal = MealID)
 
 @app.route('/logout', methods = ['GET', 'POST'])
 def logout_Dummy():
@@ -271,6 +300,17 @@ def logout_Dummy():
     user.is_authenticated = False
     logout_user()
     return render_template('firstpage.html', message = "Logged out successfully")
+
+def Encrypt_Password():
+    Users = Credentials.query.all()
+    for user in Users :
+        user_password = user.password
+        pw_hash = generate_password_hash(user_password)
+        NewUser = Credentials(user_id = user.user_id, email_id = user.email_id, password = pw_hash)
+        db.session.delete(user)
+        db.session.add(NewUser)
+        db.session.commit()
+
 
 # Future Scope :
 # 1. Product Details page
