@@ -168,7 +168,9 @@ def ViewRecommendation():
 
     # Call ML Algo with above object and get list of product IDs user will most likely to buy next.
 
-    Next_To_Buy_Ids = []
+    Next_To_Buy_Ids = [3,6,7,14,16,34,58,76,98,374]
+    print("Current Cart :", Cart_Product_Ids)
+    print("Next to buy: ", Next_To_Buy_Ids)
 
     # Product list will contain product Ids in priority : 1. Common in cart and next to buy 2. Only in Cart 3. Only in Next to buy
     Products_List = []
@@ -182,34 +184,47 @@ def ViewRecommendation():
             Cart_Product_Ids.remove(Next_To_Buy_Ids[i])
 
     ## Add remaining productIds from cart list
-    Products_List.append(Cart_Product_Ids)
+    Products_List.extend(Cart_Product_Ids)
 
     ## Add remaining products from Next to but list
     for i in range(len(Next_To_Buy_Ids)):
         if i not in marked_indices:
             Products_List.append(Next_To_Buy_Ids[i])
 
+    print("Combined list : ", Products_List)
+
     ## Intersection query to get most suitable meals from above list of products
+
     Filter_Meals1 = Meal.query.filter(Meal.product_id == Products_List[0]).all()
-    Filter_meals = []
-    for meal in Filter_Meals1:
-        Filter_meals.append(meal.meal_id)
+    print("Filter_Meals1 0 : ", Filter_Meals1)
 
     index = 1
-    while len(Filter_Meals)>5 and index<len(Products_List):
+    while len(Filter_Meals1)==0 and index<len(Products_List):
+        Filter_Meals1 = Meal.query.filter(Meal.product_id == Products_List[index]).all()
+        print("Filter_Meals1 " + str(index) +": ", Filter_Meals1)
+        Filter_meals = []
+        for meal in Filter_Meals1:
+            Filter_meals.append(meal.meal_id)
+        index += 1
+
+    print("Filter_meals first : ", Filter_meals)
+
+    while len(Filter_meals)>5 and index<len(Products_List):
         Subquery1 = Meal.query.filter(Meal.product_id == Products_List[index]).all()
         Subquery1_results = []
         for meal in Subquery1:
             Subquery1_results.append(meal.meal_id)
-        Filter_Meals = Filter_Meals.intersect(Subquery1)
+        Filter_meals = Filter_meals.intersect(Subquery1)
         index += 1
 
+    print("Filter meals final : ", Filter_meals)
     ## Get Meal names from mealdetail table from above meal ids (top 5)
     Meal_List = []
-    for mealID in Filter_Meals:
-        Meal = MealDetails.query.filter(MealDetails.meal_id == mealID).first()
-        Meal_List.append(Meal.name)
+    for mealID in Filter_meals:
+        meal = MealDetails.query.filter(MealDetails.meal_id == mealID).first()
+        Meal_List.append([mealID, meal.name])
 
+    print("Meal_List sent : ",  Meal_List)
     return render_template('MealRecommendation.html', MealList=Meal_List)
 
 @app.route('/AddMissingProduct/<MealID>', methods = ['GET', 'POST'])
@@ -235,20 +250,20 @@ def AddMissingProduct(MealID):
     Missing_products = []
 
     ## Implementation 1
-    Common_products = Cart_Product_Ids.intersect(Meal_Product_Ids)
-    Missing_products_Ids = Meal_Product_Ids.remove(Common_products)
-
-    for missing_product_id in Missing_products_Ids:
-        Missing_product = Product.query.filter(Product.product_id==missing_product_id).first()
-        Missing_products.append(Missing_product.name)
+    # Common_products = Cart_Product_Ids.intersect(Meal_Product_Ids)
+    # Missing_products_Ids = Meal_Product_Ids.remove(Common_products)
+    #
+    # for missing_product_id in Missing_products_Ids:
+    #     Missing_product = Product.query.filter(Product.product_id==missing_product_id).first()
+    #     Missing_products.append(Missing_product.name)
 
     ## Implementation 2
-    # for meal_product in Meal_Product_Ids :
-    #     if meal_product not in Cart_Product_Ids:
-    #         Missing_product_name = Product.query.filter(Product.product_id==meal_product).options(load_only("name")).first()
-    #         Missing_products.append(Missing_product_name)
+    for meal_product in Meal_Product_Ids :
+        if meal_product not in Cart_Product_Ids:
+            Missing_product = Product.query.filter(Product.product_id==meal_product).first()
+            Missing_products.append([Missing_product.product_id, Missing_product.name, Missing_product.price])
 
-    return render_template('HomePage.html', ProductList=Missing_products)
+    return render_template('HomePage.html', ProductList=Missing_products, Cart_Products=Cart_Product_Ids)
 
 @app.route('/logout', methods = ['GET', 'POST'])
 def logout_Dummy():

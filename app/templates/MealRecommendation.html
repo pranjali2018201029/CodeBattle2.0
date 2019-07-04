@@ -6,3 +6,164 @@ Add Meal button: call AddToCart function with MealID as paramter
 Add Missing Ingredients button : call AddMissingProduct function with MealID as paramter
 Skip Recommendation button at the end : will do nothing for now
 Future : We can keep track of number of hits on this button to measure how many people are actually using our recommendations -->
+
+<html>
+  <head>
+
+    <link href="{{ url_for('static',filename = 'styles.css') }}" rel="stylesheet" type="text/css">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <style>
+            .element
+               { position:fixed; bottom:2%; right:2%; }
+               .element2
+               { position:fixed; bottom:2%;  right:38%;}
+               .element3
+               { position:fixed; bottom:2%; left:2%; }
+          .cartbtn {
+            cursor:pointer;
+              cursor:hand;
+                }
+            table{
+              border: 1px solid #00498d;
+
+            }
+            table, th, td {
+
+              border-collapse: collapse;
+
+            }
+            th, td {
+              padding: 15px;
+              text-align: center;
+
+            }
+            th{
+              background: #00498d;
+              color: white
+            }
+
+            table#t01 {
+              width: 100%;
+              background-color: #f1f1c1;
+            }
+            div {
+              max-height: 96%;
+              overflow-y: auto;
+              margin: 3%;
+            }
+            thead tr{
+      position: absolute;
+      left: 0;
+      right: 15px;
+      /* to not cover the scrollbar*/
+      background: #00498d
+    }
+
+    thead th,
+    tfoot td {
+      display: inline-block;
+    }
+
+    thead tr {
+      top: 2%;
+      width:94%;
+      left: 3%;
+
+    }
+
+
+    th,
+    td {
+      width: calc((100%/3) - 5px);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    tbody tr td{
+      width: calc((100%/3));
+    }
+    /*give some space between thead and tfoot*/
+
+    tbody tr td {
+      padding-top: 25px;
+
+      padding-bottom: 30px;
+    }
+
+    tr:nth-child(even) {background-color:white}
+    tr:nth-child(odd) {background-color: #EFFBFC  ;}
+    /* unvisited link */
+    a:link {
+      color: #00498d;
+    }
+
+    /* visited link */
+    a:visited {
+      color: #01598d;
+    }
+
+    /* mouse over link */
+    a:hover {
+      color: black;
+    }
+
+    /* selected link */
+    a:active {
+      color: #01598d;
+    }
+    </style>
+      </head>
+
+        <body style="background-color:white";font-family: Arial, Helvetica, sans-serif;>
+
+          <div>
+            <table style="width: 100%;margin-top: 10px" id="ProductTable">
+                <thead>
+                    <tr style="background-color: #00498d">
+                      <th >Meal Name</th>
+                      <th>Add Meal</th>
+                      <th>Add Missing Ingredients</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style="text-align: center;">
+                      <td>Column one</td>
+                      <td>100</td>
+                      <td>Column three</td>
+                    </tr>
+                    {% for meal in MealList %}
+                    <tr id="{{meal[0]}}">
+                      <td >{{ meal[1] }}</td>
+                      <td><a href="/AddToCart/{{ meal[0] }}"><button style="background: #FFB81C" onclick="" id="Total2">Add Meal </button></a>
+                      </td>
+                      <td><a href="AddMissingProduct/{{ meal[0] }}"><button style="background: #FFB81C" onclick="" id="Total2">Add Missing Ingredients</button></a>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+
+              </table>
+            </div>
+
+
+
+            <script>
+
+
+            var tab=document.getElementById('ProductTable');
+            prows=tab.rows;
+            prows[1].parentNode.removeChild(prows[1]);
+
+
+
+
+
+
+            </script>
+
+
+        </body>
+    </html>
