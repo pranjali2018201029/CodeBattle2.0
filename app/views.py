@@ -19,6 +19,9 @@ from sqlalchemy.orm import load_only
 import json
 from app.models import User, Credentials, Product, Meal, MealDetails, Cart
 
+from predict_kmeans import allocateClusterToNewUser
+from predict_auto_encoder import predict_auto_encoder
+
 # Use SQLAlchemy for SQLite queries, install and import packages here as and when required.
 
 ## VIEW 1 ROUTE
@@ -118,9 +121,6 @@ def Login():
                 Auth_User = User.query.filter(User.user_id == user1.user_id).first()
                 Cred = user1
 
-        print("User found: ", Cred.email_id, Cred.password)
-        print("Check Password : ",Cred.password, password, (Cred.password == password))
-
         if Check and Cred and (Cred.password == password):
             login_user(Auth_User)
             Auth_User.is_authenticated = True
@@ -189,14 +189,17 @@ def ViewRecommendation():
         Cart_Product_Ids.append(product.product_id)
 
     Obj_To_ML_Algo = {}
-    Obj_To_ML_Algo['CustomerID'] = uid
+    Obj_To_ML_Algo['USER_ID'] = uid
     Obj_To_ML_Algo['ProductID'] = list(Cart_Product_Ids)
 
     print Obj_To_ML_Algo
 
     # Call ML Algo with above object and get list of product IDs user will most likely to buy next.
+    ClusterID, UserID = allocateClusterToNewUser(Obj_To_ML_Algo)
+    Next_To_Buy_Ids = predict_auto_encoder(ClusterID, UserID)
 
-    Next_To_Buy_Ids = [3,6,7,14,16,34,58,76,98,374]
+    # Next_To_Buy_Ids = [3,6,7,14,16,34,58,76,98,374]
+    # Next_To_Buy_Ids = AutoEncoder_Predict(Obj_To_ML_Algo)
     print("Current Cart :", Cart_Product_Ids)
     print("Next to buy: ", Next_To_Buy_Ids)
 
@@ -311,6 +314,9 @@ def Encrypt_Password():
         db.session.add(NewUser)
         db.session.commit()
 
+def AutoEncoder_Predict(Obj):
+    Next_Predict = [367, 124, 259, 7, 31, 106, 36, 141, 188, 394]
+    return Next_Predict
 
 # Future Scope :
 # 1. Product Details page
